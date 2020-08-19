@@ -22,7 +22,7 @@ func run() error {
 	server.store = &dbStore{}
 	err := server.store.Open()
 	if err != nil {
-		return nil
+		return err
 	}
 	defer server.store.Close()
 
