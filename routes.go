@@ -1,4 +1,4 @@
-package main
+package gwm
 
 import (
 	"fmt"
@@ -9,12 +9,12 @@ import (
 )
 
 // routes list all HTTP routes.
-func (s *server) routes() {
-	s.router.POST("/post", s.handlePost())
-	s.router.GET("/name/:name", s.handleName())
+func (s *Server) routes() {
+	s.Router.POST("/post", s.handlePost())
+	s.Router.GET("/name/:name", s.handleName())
 }
 
-func (s *server) handlePost() echo.HandlerFunc {
+func (s *Server) handlePost() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		l := struct {
 			Login string `json:"login" form:"login" query:"login"`
@@ -28,7 +28,7 @@ func (s *server) handlePost() echo.HandlerFunc {
 	}
 }
 
-func (s *server) handleName() echo.HandlerFunc {
+func (s *Server) handleName() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		name := c.Param("name")
 		return c.String(http.StatusOK, fmt.Sprintf("Hello %s!", name))

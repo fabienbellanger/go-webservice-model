@@ -1,7 +1,10 @@
-package main
+package gwm
 
 import (
+	"fmt"
 	"log"
+
+	"github.com/spf13/viper"
 
 	_ "github.com/go-sql-driver/mysql" // MySQL driver
 	"github.com/jmoiron/sqlx"
@@ -15,29 +18,37 @@ type Store interface {
 	GetSuperUsers() ([]*SuperUser, error)
 }
 
-type dbStore struct {
-	db *sqlx.DB
+type DBStore struct {
+	DB *sqlx.DB
 }
 
-func (s *dbStore) Open() error {
-	db, err := sqlx.Connect("mysql", "root:root@tcp(localhost:3306)/pos")
+// Open opens database connection.
+func (s *DBStore) Open() error {
+	db, err := sqlx.Connect("mysql", fmt.Sprintf("%s:%s@tcp(%s:%d)/%s",
+		viper.GetString("database.username"),
+		viper.GetString("database.password"),
+		viper.GetString("database.host"),
+		viper.GetInt("database.port"),
+		viper.GetString("database.name")))
 	if err != nil {
 		return err
 	}
-	log.Println("Connected to DB")
-	s.db = db
+	log.Printf("Connected to DB %s", viper.GetString("database.name"))
+	s.DB = db
 
 	return nil
 }
 
-func (s *dbStore) Close() error {
-	return s.db.Close()
+// Close closes database conection.
+func (s *DBStore) Close() error {
+	return s.DB.Close()
 }
 
-func (s *dbStore) GetSuperUsers() ([]*SuperUser, error) {
+// GetSuperUsers returns SuperUsers list.
+func (s *DBStore) GetSuperUsers() ([]*SuperUser, error) {
 	var users []*SuperUser
 
-	err := s.db.Select(&users, "SELECT * FROM SuperUser")
+	err := s.DB.Select(&users, "SELECT * FROM SuperUser")
 	if err != nil {
 		return users, err
 	}
