@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"net/http"
 	"os"
 )
 
@@ -19,6 +21,8 @@ func main() {
 func run() error {
 	server := newServer()
 
+	// Database initialization
+	// -----------------------
 	server.store = &dbStore{}
 	err := server.store.Open()
 	if err != nil {
@@ -26,11 +30,13 @@ func run() error {
 	}
 	defer server.store.Close()
 
-	// users, err := server.store.GetSuperUsers()
-	// if err != nil {
-	// 	return err
-	// }
-	// log.Println(users)
-
+	// HTTP server initialization
+	// --------------------------
+	http.HandleFunc("/", server.serveHTTP)
+	log.Printf("Serving HTTP onn port 9000")
+	err = http.ListenAndServe(":9000", nil)
+	if err != nil {
+		return err
+	}
 	return nil
 }
