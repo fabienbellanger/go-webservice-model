@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	gwm "github.com/fabienbellanger/go-webservice-model"
+	"github.com/gofiber/fiber"
+	"github.com/gofiber/fiber/middleware"
 	"github.com/spf13/viper"
 )
 
@@ -19,12 +22,32 @@ func main() {
 		os.Exit(1)
 	}
 
+	app := fiber.New()
+
+	// Default Logger
+	app.Use(middleware.Logger())
+
+	// Default recover
+	app.Use(middleware.Recover())
+
+	app.Get("/hello", func(c *fiber.Ctx) {
+		time.Sleep(458 * time.Millisecond)
+		t := 2
+		q := 0
+		fmt.Println(t / q)
+		c.Send("Hello, world!")
+	})
+	app.Get("/name/:name", func(c *fiber.Ctx) {
+		c.Send(fmt.Sprintf("Hello, %s!", c.Params("name")))
+	})
+	app.Listen(viper.GetInt("server.port"))
+
 	// Server creation
 	// ---------------
-	if err := run(); err != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", err)
-		os.Exit(1)
-	}
+	// if err := run(); err != nil {
+	// 	fmt.Fprintf(os.Stderr, "%s\n", err)
+	// 	os.Exit(1)
+	// }
 }
 
 // initConfig initializes configuration from config.toml file.
