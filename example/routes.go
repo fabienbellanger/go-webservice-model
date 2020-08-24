@@ -10,6 +10,16 @@ func (s *Server) routes() {
 func (s *Server) handleExample() echo.HandlerFunc {
 	return func(c echo.Context) error {
 		s.Store.getExamples()
-		return c.String(200, "Hello example!")
+
+		t := make([]Example, 0)
+		for i := 0; i < 100000; i++ {
+			t = append(t, Example{
+				ID:      int64(i),
+				Name:    "Coucou ceci est mon nom",
+				Message: "Mon message doit être un peu long pour augmenter la taille",
+			})
+		}
+
+		return c.JSON(200, t)
 	}
 }
