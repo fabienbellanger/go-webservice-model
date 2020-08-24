@@ -8,7 +8,7 @@ import (
 )
 
 type Store interface {
-	Init(db *sqlx.DB) error
+	Init(db *sqlx.DB)
 
 	getExamples() error
 }
@@ -32,9 +32,8 @@ func NewServer(router *echo.Echo) *Server {
 	return s
 }
 
-func (s *DBStore) Init(db *sqlx.DB) error {
+func (s *DBStore) Init(db *sqlx.DB) {
 	s.DB = db
-	return nil
 }
 
 // routes list all HTTP routes.
