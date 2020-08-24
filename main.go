@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"runtime"
 
 	"github.com/fabienbellanger/go-webservice-model/example"
 	"github.com/spf13/viper"
@@ -38,6 +39,10 @@ func run() error {
 	// Main server
 	// -----------
 	server := newServer()
+
+	fmt.Printf("OS:  %s\n", runtime.GOOS)
+	fmt.Printf("CPU: %d\n", runtime.NumCPU())
+	fmt.Printf("PID: %d\n\n", os.Getpid())
 
 	// Database initialization
 	// -----------------------
