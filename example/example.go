@@ -10,7 +10,7 @@ import (
 type Store interface {
 	Init(db *sqlx.DB) error
 
-	GetExamples() error
+	getExamples() error
 }
 
 type Server struct {
@@ -44,12 +44,12 @@ func (s *Server) routes() {
 
 func (s *Server) handleExample() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		s.Store.GetExamples()
+		s.Store.getExamples()
 		return c.String(200, "Hello example!")
 	}
 }
 
-func (s *DBStore) GetExamples() error {
+func (s *DBStore) getExamples() error {
 	log.Println("GetExamples")
 	return nil
 }
