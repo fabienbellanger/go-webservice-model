@@ -1,4 +1,4 @@
-package gwm
+package main
 
 import (
 	"fmt"
@@ -11,11 +11,11 @@ import (
 )
 
 // Store is an interface that represents the store of the application.
-type Store interface {
+type store interface {
 	Open() error
 	Close() error
 
-	GetSuperUsers() ([]*SuperUser, error)
+	GetDB() *sqlx.DB
 }
 
 type DBStore struct {
@@ -44,13 +44,7 @@ func (s *DBStore) Close() error {
 	return s.DB.Close()
 }
 
-// GetSuperUsers returns SuperUsers list.
-func (s *DBStore) GetSuperUsers() ([]*SuperUser, error) {
-	var users []*SuperUser
-
-	err := s.DB.Select(&users, "SELECT * FROM SuperUser")
-	if err != nil {
-		return users, err
-	}
-	return users, nil
+// Close closes database conection.
+func (s *DBStore) GetDB() *sqlx.DB {
+	return s.DB
 }

@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 
-	gwm "github.com/fabienbellanger/go-webservice-model"
 	"github.com/fabienbellanger/go-webservice-model/example"
 	"github.com/spf13/viper"
 )
@@ -36,24 +35,29 @@ func initConfig() error {
 
 // run launches a server instance.
 func run() error {
-	server := gwm.NewServer()
+	// Main server
+	// -----------
+	server := newServer()
 
 	// Database initialization
 	// -----------------------
-	server.Store = &gwm.DBStore{}
-	err := server.Store.Open()
+	server.store = &DBStore{}
+	err := server.store.Open()
 	if err != nil {
 		return err
 	}
-	defer server.Store.Close()
+	defer server.store.Close()
 
-	userServer := example.NewServer(server.Router)
-	userServer.Routes()
+	// Example
+	// -------
+	exampleServer := example.NewServer(server.router)
+	exampleServer.Store = &example.DBStore{}
+	exampleServer.Store.Init(server.store.GetDB())
 
 	// HTTP server initialization
 	// --------------------------
-	http.HandleFunc("/", server.ServeHTTP)
-	err = server.Router.Start(fmt.Sprintf("%v:%v",
+	http.HandleFunc("/", server.serveHTTP)
+	err = server.router.Start(fmt.Sprintf("%v:%v",
 		viper.GetString("server.host"),
 		viper.GetString("server.port")))
 	if err != nil {

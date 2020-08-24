@@ -1,4 +1,4 @@
-package gwm
+package main
 
 import (
 	"net/http"
@@ -9,15 +9,15 @@ import (
 	"github.com/spf13/viper"
 )
 
-type Server struct {
-	Store  Store
-	Router *echo.Echo
+type server struct {
+	store  store
+	router *echo.Echo
 }
 
-// NewServer creates a new instance of Server.
-func NewServer() *Server {
-	s := &Server{
-		Router: echo.New(),
+// newServer creates a new instance of Server.
+func newServer() *server {
+	s := &server{
+		router: echo.New(),
 	}
 
 	s.initHTTPServer()
@@ -26,31 +26,26 @@ func NewServer() *Server {
 	return s
 }
 
-func (s *Server) initHTTPServer() {
+func (s *server) initHTTPServer() {
 	// Startup banner
 	// --------------
 	if viper.GetString("environment") == "production" {
-		s.Router.HideBanner = true
+		s.router.HideBanner = true
 	}
 
 	// Logger
 	// ------
-	s.Router.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+	s.router.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format:           "${time_custom} | ${remote_ip}\t| ${status} | ${method} | ${uri} | ${latency_human}\n",
 		CustomTimeFormat: "2006-01-02 15:04:05",
-		Output:           os.Stderr,
+		Output:           os.Stdout,
 	}))
 
 	// Recover
 	// -------
-	s.Router.Use(middleware.RecoverWithConfig(middleware.RecoverConfig{
-		StackSize:         1 << 10, // 1 KB
-		DisableStackAll:   true,
-		DisablePrintStack: true,
-		Skipper:           middleware.DefaultSkipper,
-	}))
+	s.router.Use(middleware.Recover())
 }
 
-func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	s.Router.ServeHTTP(w, r)
+func (s *server) serveHTTP(w http.ResponseWriter, r *http.Request) {
+	s.router.ServeHTTP(w, r)
 }
